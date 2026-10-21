@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rainy · Wolfroxz</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌧️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --text:#f5f5f7; --muted:rgba(245,245,247,.66);
+  --glass:rgba(255,255,255,.09); --line:rgba(255,255,255,.18);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+@property --hue{syntax:'<number>';inherits:true;initial-value:210}
+@property --drift{syntax:'<number>';inherits:true;initial-value:0}
+html{--accent:hsl(calc(var(--hue) + var(--drift)) 100% 68%);--accent2:hsl(calc(var(--hue) + var(--drift) + 70) 95% 70%)}
+body{transition:--hue 1.6s ease;animation:hue 16s ease-in-out infinite alternate}
+body[data-view="sandbox"]{--hue:280}
+@keyframes hue{from{--drift:-25}to{--drift:35}}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:-.011em;
+  color:var(--text); background:#07090f; display:flex; overflow:hidden;
+}
+/* drifting gradient background */
+body::before{
+  content:""; position:fixed; inset:-25%; z-index:-1;
+  background:
+    radial-gradient(40% 40% at 25% 40%, hsl(calc(var(--hue) + var(--drift)) 95% 48%) 0%, transparent 70%),
+    radial-gradient(38% 40% at 75% 22%, hsl(calc(var(--hue) + var(--drift) + 75) 80% 50%) 0%, transparent 70%),
+    radial-gradient(40% 40% at 80% 85%, hsl(calc(var(--hue) + var(--drift) - 60) 85% 42%) 0%, transparent 70%),
+    radial-gradient(35% 35% at 12% 92%, hsl(calc(var(--hue) + var(--drift) + 150) 70% 40%) 0%, transparent 70%);
+  animation:drift 26s ease-in-out infinite alternate;
+}
+@keyframes drift{to{transform:translate3d(6%,-4%,0) rotate(14deg) scale(1.08)}}
+
+/* ---------- intro gate ---------- */
+#gate{
+  position:fixed; inset:0; z-index:50; display:grid; place-items:center; text-align:center;
+  background:rgba(8,10,16,.5); backdrop-filter:blur(40px) saturate(160%); -webkit-backdrop-filter:blur(40px) saturate(160%);
+  transition:opacity .8s var(--ease), backdrop-filter .8s var(--ease), transform .8s var(--ease);
+}
+#gate.leave{opacity:0;transform:scale(1.06);pointer-events:none}
+.gate-in{width:min(380px,84vw)}
+#gate h1{font-size:clamp(3.4rem,11vw,5.4rem);letter-spacing:-.05em;font-weight:700;animation:rise .9s var(--ease) both}
+#gate .tag{color:var(--muted);margin-top:6px;animation:rise .9s .1s var(--ease) both}
+.meter{margin-top:34px;height:6px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;animation:rise .9s .2s var(--ease) both}
+.meter i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 0 16px var(--accent)}
+.status{margin-top:12px;font-size:.9rem;color:var(--muted);min-height:1.3em;font-variant-numeric:tabular-nums}
+.enter{
+  margin-top:22px; padding:13px 34px; border-radius:999px; font-size:1.05rem; font-weight:700; cursor:pointer;
+  color:#0b0d12; border:0; background:#f5f5f7;
+  opacity:0; transform:translateY(10px) scale(.96); pointer-events:none;
+  transition:opacity .5s var(--ease), transform .5s var(--ease), background .2s;
+}
+.enter.ready{opacity:1;transform:none;pointer-events:auto;animation:pulse 2.4s 1s ease-in-out infinite}
+.enter:hover{transform:scale(1.05)}
+@keyframes pulse{50%{box-shadow:0 0 0 12px rgba(255,255,255,0)}0%{box-shadow:0 0 0 0 rgba(255,255,255,.4)}}
+
+/* ---------- layout ---------- */
+aside{
+  width:260px; flex:none; padding:16px 10px; position:relative; z-index:3;
+  background:rgba(18,20,30,.38); backdrop-filter:blur(40px) saturate(180%); -webkit-backdrop-filter:blur(40px) saturate(180%);
+  border-right:1px solid rgba(255,255,255,.08);
+  transition:margin-left .5s var(--ease);
+}
+aside.closed{margin-left:-260px}
+.toggle{
+  position:fixed; top:12px; left:12px; z-index:6; width:44px; height:44px; border-radius:50%;
+  border:1px solid var(--line); background:rgba(24,26,36,.55); color:var(--text);
+  backdrop-filter:blur(12px); cursor:pointer; display:grid; place-items:center;
+  transition:transform .4s var(--ease), background .2s;
+}
+.toggle:hover{transform:scale(1.1) rotate(-6deg);background:rgba(60,64,84,.7)}
+nav{margin-top:64px;display:flex;flex-direction:column;gap:6px;position:relative}
+nav .pill{
+  position:absolute; left:0; right:0; top:0; height:44px; border-radius:12px; z-index:0;
+  background:color-mix(in srgb,var(--accent) 26%,transparent); border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);
+  transition:transform .5s var(--ease);
+}
+nav button{
+  all:unset; box-sizing:border-box; position:relative; z-index:1; height:44px; display:flex; align-items:center; gap:12px;
+  cursor:pointer; padding:0 14px; border-radius:12px; font-size:1.02rem; transition:color .3s, transform .3s var(--ease);
+}
+nav button:hover{transform:translateX(4px)}
+nav button.on{color:#fff}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+main{flex:1;overflow:auto;padding:96px 6vw 130px;min-width:0}
+.view{display:none;max-width:900px}
+.view.on{display:block;animation:viewin .55s var(--ease) both}
+.view.out{display:block;animation:viewout .2s ease-in both}
+@keyframes viewin{from{opacity:0;transform:translateY(18px);filter:blur(6px)}}
+@keyframes viewout{to{opacity:0;transform:translateY(-10px);filter:blur(4px)}}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}}
+h1.big{font-size:clamp(2.6rem,6vw,4rem);font-weight:700;letter-spacing:-.045em;line-height:1.05;
+  background:linear-gradient(100deg,#fff 20%,var(--accent) 50%,var(--accent2) 65%,#fff 90%);background-size:250% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 7s ease-in-out infinite alternate}
+@keyframes shine{to{background-position:100% 0}}
+.wave{display:inline-block;transform-origin:70% 70%;animation:wave 2.2s 1.2s ease-in-out 2}
+@keyframes wave{0%,60%,100%{transform:rotate(0)}10%,30%,50%{transform:rotate(16deg)}20%,40%{transform:rotate(-8deg)}}
+.sub{margin-top:16px;color:var(--muted);font-size:1.25rem;line-height:1.5;max-width:60ch}
+.cards{display:flex;flex-wrap:wrap;gap:20px;margin-top:40px}
+.card{
+  all:unset; box-sizing:border-box; cursor:pointer; position:relative; overflow:hidden; width:300px; height:220px; padding:26px; border-radius:30px;
+  background:var(--glass); border:1px solid var(--line); backdrop-filter:blur(30px) saturate(170%); -webkit-backdrop-filter:blur(30px) saturate(170%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+  transition:transform .45s var(--ease), background .3s, box-shadow .45s var(--ease);
+}
+.card:hover{transform:translateY(-6px) scale(1.02);background:rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 18px 40px rgba(0,0,0,.25)}
+.card:active{transform:scale(.98)}
+.card::before{content:"";position:absolute;inset:0;opacity:0;transition:opacity .4s;pointer-events:none;
+  background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--accent) 40%,transparent),transparent 70%)}
+.card:hover::before{opacity:1}
+.card>*{position:relative}
+.card h2{display:flex;align-items:center;gap:12px;font-size:1.6rem;font-weight:600;letter-spacing:-.03em}
+.card p{margin-top:14px;color:var(--muted)}
+
+/* staggered entrance after gate */
+body:not(.in) .stag{opacity:0}
+body.in .stag{animation:rise .9s var(--ease) both;animation-delay:calc(var(--n,0) * 110ms + 250ms)}
+body:not(.in) aside{transform:translateX(-30px);opacity:0}
+body.in aside{transform:none;opacity:1;transition:transform .9s var(--ease),opacity .9s,margin-left .5s var(--ease)}
+
+/* sandbox */
+textarea,pre{
+  width:100%;font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text);
+  background:rgba(8,10,16,.5);border:1px solid var(--line);border-radius:20px;padding:16px;
+}
+textarea{height:240px;resize:vertical;margin-top:24px;transition:border-color .3s, box-shadow .3s}
+textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)}
+pre{margin-top:14px;min-height:120px;white-space:pre-wrap;overflow:auto;transition:opacity .3s}
+.row{display:flex;align-items:center;gap:16px;margin-top:16px}
+.run{padding:10px 24px;border-radius:999px;cursor:pointer;font-size:1rem;font-weight:600;color:var(--text);
+  border:0;background:var(--accent);color:#0b0d12;transition:transform .3s var(--ease),filter .2s}
+.run:hover{transform:scale(1.06);filter:brightness(1.1)}
+.run:active{transform:scale(.96)}
+.run:disabled{opacity:.5;cursor:wait;transform:none}
+.proc{flex:1;max-width:320px}
+.bar{height:5px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;opacity:0;transition:opacity .3s}
+.bar.on{opacity:1}
+.bar i{display:block;height:100%;width:40%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.bar.on i{animation:slide 1.1s ease-in-out infinite}
+.bar.done i{animation:none;width:100%;transition:width .4s var(--ease)}
+@keyframes slide{from{transform:translateX(-110%)}to{transform:translateX(260%)}}
+.pstat{font-size:.85rem;color:var(--muted);margin-top:6px;min-height:1.2em}
+
+/* player bar */
+#player{
+  position:fixed;left:min(410px,4vw);right:4vw;bottom:22px;z-index:4;height:58px;padding:0 18px;border-radius:999px;
+  display:flex;align-items:center;gap:14px;background:rgba(24,26,36,.5);border:1px solid var(--line);
+  backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);
+  transform:translateY(120px);transition:transform 1s .6s var(--ease), left .5s var(--ease);
+}
+body.in #player{transform:none}
+body.side-closed #player{left:4vw}
+.pb{all:unset;cursor:pointer;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;transition:transform .25s var(--ease),background .2s;flex:none}
+.pb:hover{background:rgba(255,255,255,.14);transform:scale(1.12)}
+.pb[aria-pressed="false"]{opacity:.45}
+.t{font-variant-numeric:tabular-nums;font-size:.92rem;min-width:44px}
+.track{flex:1;height:8px;border-radius:99px;background:rgba(255,255,255,.2);cursor:pointer;position:relative;overflow:hidden}
+.track i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px}
+.eq{display:flex;gap:2px;align-items:flex-end;height:16px;flex:none}
+.eq b{width:3px;height:4px;background:var(--accent2);border-radius:2px}
+.playing .eq b{animation:eq .9s ease-in-out infinite alternate}
+.eq b:nth-child(2){animation-delay:.2s!important}.eq b:nth-child(3){animation-delay:.45s!important}
+@keyframes eq{to{height:16px}}
+.ttl{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.92rem;font-weight:600}
+.toast{position:fixed;bottom:100px;left:50%;transform:translate(-50%,16px);padding:10px 18px;border-radius:999px;z-index:20;
+  background:rgba(28,30,40,.85);border:1px solid var(--line);opacity:0;transition:opacity .3s,transform .4s var(--ease);pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media(max-width:720px){
+  aside{position:fixed;inset:0 auto 0 0}
+  aside.closed{margin-left:-260px}
+  main{padding-top:84px}
+  .card{width:100%}
+  .ttl{display:none}
+  #player,body.side-closed #player{left:3vw;right:3vw}
+}
+@media(prefers-reduced-motion:reduce){*,*::before{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body data-view="home">
+
+<div id="gate">
+  <div class="gate-in">
+    <h1>Rainy</h1>
+    <p class="tag">Wolfroxz's corner of the internet</p>
+    <div class="meter"><i id="gbar"></i></div>
+    <p class="status" id="gstat">Starting up</p>
+    <button class="enter" id="enter">Enter (sound on)</button>
+  </div>
+</div>
+
+
+<button class="toggle" id="toggle" aria-label="Toggle sidebar">
+  <svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>
+</button>
+
+<aside id="side">
+  <nav id="nav">
+    <span class="pill" id="pill"></span>
+    <button class="on" data-view="home"><svg class="i" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg>Home</button>
+    <button data-view="sandbox"><svg class="i" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>Python Sandbox</button>
+  </nav>
+</aside>
+
+<main>
+  <section class="view on" id="home">
+    <h1 class="big stag" style="--n:0">Hello <span class="wave">👋</span></h1>
+    <p class="sub stag" style="--n:1">Hey! I'm Rainy, or Wolfroxz. This is my personal website (hosted on Vercel).</p>
+    <div class="cards">
+      <button class="card stag" style="--n:2" id="discord">
+        <h2><svg class="i" viewBox="0 0 24 24" style="stroke:none;fill:#7b83ff;width:30px;height:30px"><path d="M19.3 5.4A17 17 0 0 0 15.1 4l-.5 1a15.7 15.7 0 0 0-5.2 0l-.5-1a17 17 0 0 0-4.2 1.4C1.9 9.4 1.2 13.3 1.5 17.2a17.2 17.2 0 0 0 5.2 2.6l1.1-1.8c-.6-.2-1.2-.5-1.7-.8l.4-.3a12.3 12.3 0 0 0 10.6 0l.4.3c-.5.3-1.1.6-1.7.8l1.1 1.8a17.2 17.2 0 0 0 5.2-2.6c.4-4.5-.7-8.4-3.2-11.8zM8.7 14.8c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm6.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/></svg>Wolfroxz</h2>
+        <p>Wolfroxz on Discord (click to copy)</p>
+      </button>
+      <button class="card stag" style="--n:3" data-view="sandbox">
+        <h2><svg class="i" viewBox="0 0 24 24" style="width:30px;height:30px"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>Python Sandbox</h2>
+        <p>Run Python programs right in your browser</p>
+      </button>
+    </div>
+  </section>
+
+  <section class="view" id="sandbox">
+    <h1 class="big">Python Sandbox</h1>
+    <p class="sub">Runs in your browser with Pyodide, so nothing gets sent to a server. The first run takes a few seconds to load the runtime.</p>
+    <textarea id="code" spellcheck="false" aria-label="Python code">name = "Rainy"
+for i in range(3):
+    print(f"hello from {name} #{i + 1}")</textarea>
+    <div class="row">
+      <button class="run" id="run">Run</button>
+      <div class="proc"><div class="bar" id="pbar"><i></i></div><div class="pstat" id="pstat"></div></div>
+    </div>
+    <pre id="out" aria-live="polite">Output shows up here.</pre>
+  </section>
+</main>
+
+<div id="player" aria-label="Music player">
+  <button class="pb" id="pp" aria-label="Play or pause"><svg class="i" id="ppi" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg></button>
+  <div class="eq" aria-hidden="true"><b></b><b></b><b></b></div>
+  <span class="ttl" id="title">No track</span>
+  <span class="t" id="tcur">0:00</span>
+  <div class="track" id="track" role="slider" aria-label="Seek"><i id="tfill"></i></div>
+  <span class="t" id="tdur">0:00</span>
+  <button class="pb" id="nx" aria-label="Shuffle to another track"><svg class="i" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+  <button class="pb" id="mm" aria-label="Mute music" aria-pressed="true"><svg class="i" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10zM17 9a4 4 0 0 1 0 6"/></svg></button>
+  <button class="pb" id="sfxb" aria-label="Toggle sound effects" aria-pressed="true"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v18M7 8v8M17 8v8M3 11v2M21 11v2"/></svg></button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* ---------- sound effects (synthesized with Web Audio, so nothing to hotlink or break) ---------- */
+let ac, sfxOn = true;
+const getAC = () => ac || (ac = new (window.AudioContext || window.webkitAudioContext)());
+function tone(f, d, type = 'sine', v = .08, to = null, delay = 0){
+  if (!sfxOn) return; const c = getAC(), t = c.currentTime + delay;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t);
+  if (to) o.frequency.exponentialRampToValueAtTime(to, t + d);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .008);
+  g.gain.exponentialRampToValueAtTime(.0001, t + d);
+  o.connect(g).connect(c.destination); o.start(t); o.stop(t + d + .02);
+}
+function whoosh(){
+  if (!sfxOn) return; const c = getAC(), n = c.sampleRate * .7, b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+  s.buffer = b; f.type = 'bandpass'; f.Q.value = 1.2;
+  f.frequency.setValueAtTime(300, c.currentTime); f.frequency.exponentialRampToValueAtTime(3500, c.currentTime + .6);
+  g.gain.value = .12; s.connect(f).connect(g).connect(c.destination); s.start();
+}
+const sfx = {
+  hover: () => tone(1500, .05, 'sine', .025),
+  click: () => tone(520, .09, 'triangle', .09, 340),
+  nav:   () => { tone(440, .1, 'sine', .08); tone(660, .14, 'sine', .07, null, .07); },
+  open:  () => tone(300, .18, 'sine', .08, 560),
+  close: () => tone(560, .18, 'sine', .08, 300),
+  enter: () => { whoosh(); [523, 659, 784, 1047].forEach((f, i) => tone(f, .35, 'sine', .07, null, i * .09)); },
+  run:   () => tone(300, .25, 'sawtooth', .04, 900),
+  ok:    () => { tone(660, .12, 'triangle', .08); tone(880, .2, 'triangle', .08, null, .1); },
+  err:   () => { tone(200, .25, 'sawtooth', .07, 110); },
+  copy:  () => { tone(900, .06, 'square', .04); tone(1200, .09, 'square', .04, null, .06); },
+  tick:  () => tone(700, .04, 'square', .03)
+};
+let lastHover = 0;
+document.addEventListener('pointerover', e => {
+  if (!document.body.classList.contains('in') || e.pointerType === 'touch') return;
+  const el = e.target.closest('button,.track,textarea'); if (!el || el === e.relatedTarget?.closest?.('button')) return;
+  const now = performance.now(); if (now - lastHover > 70){ lastHover = now; sfx.hover(); }
+});
+
+function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1800); }
+
+document.querySelectorAll('.card').forEach(c => c.addEventListener('pointermove', e => {
+  const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+}));
+
+/* ---------- navigation ---------- */
+const side = $('#side'), navBtns = [...document.querySelectorAll('nav button')];
+function movePill(){ const b = navBtns.find(x => x.classList.contains('on')); $('#pill').style.transform = `translateY(${b.offsetTop}px)`; }
+const setSide = closed => { side.classList.toggle('closed', closed); document.body.classList.toggle('side-closed', closed); };
+if (innerWidth < 720) setSide(true);
+$('#toggle').onclick = () => { const c = !side.classList.contains('closed'); setSide(c); c ? sfx.close() : sfx.open(); };
+
+let current = 'home', busy = false;
+async function show(v){
+  if (v === current || busy) return; busy = true; sfx.nav();
+  const from = $('#' + current), to = $('#' + v);
+  document.body.dataset.view = v; from.classList.remove('on'); from.classList.add('out');
+  navBtns.forEach(b => b.classList.toggle('on', b.dataset.view === v)); movePill();
+  await sleep(200); from.classList.remove('out'); to.classList.add('on');
+  document.body.dataset.view = v; current = v; busy = false; history.replaceState(null, '', v === 'home' ? location.pathname : '#' + v);
+  if (innerWidth < 720) setSide(true);
+}
+document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => show(b.dataset.view)));
+addEventListener('resize', movePill);
+
+$('#discord').onclick = async () => {
+  try { await navigator.clipboard.writeText('Wolfroxz'); } catch(e){}
+  sfx.copy(); toast('Copied: Wolfroxz');
+};
+
+/* ---------- python sandbox ---------- */
+let pyP;
+function loadPy(){
+  return pyP || (pyP = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+    s.onload = () => loadPyodide().then(res, rej);
+    s.onerror = () => { pyP = null; rej(new Error('Could not load Pyodide. Check your connection and try again.')); };
+    document.head.appendChild(s);
+  }));
+}
+$('#run').onclick = async () => {
+  const btn = $('#run'), out = $('#out'), bar = $('#pbar'), st = $('#pstat'), t0 = performance.now();
+  btn.disabled = true; sfx.run(); bar.className = 'bar on'; out.style.opacity = .5;
+  st.textContent = pyP ? 'Running...' : 'Loading Python runtime (first run only)...';
+  try {
+    const py = await loadPy(); st.textContent = 'Running...';
+    let buf = ''; const add = m => buf += m + '\n';
+    py.setStdout({batched: add}); py.setStderr({batched: add});
+    const r = await py.runPythonAsync($('#code').value);
+    if (r !== undefined) buf += String(r) + '\n';
+    out.textContent = buf || '(no output)';
+    st.textContent = `Done in ${Math.round(performance.now() - t0)} ms`; sfx.ok();
+  } catch (e) {
+    out.textContent = String(e.message || e); st.textContent = 'Failed. Check the error below.'; sfx.err();
+  }
+  bar.className = 'bar on done'; setTimeout(() => bar.className = 'bar', 900);
+  out.style.opacity = 1; btn.disabled = false;
+};
+
+/* ---------- music: random pick from the reliable list ---------- */
+// Add your own tracks here (put the files next to index.html or in /music). Any entry that fails to load is skipped automatically.
+const RELIABLE_TRACKS = [
+  {title: 'Flow (your own file)', url: 'flow.mp3'},
+  {title: 'Helix 01', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'},
+  {title: 'Helix 02', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'},
+  {title: 'Helix 03', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'},
+  {title: 'Helix 04', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'},
+  {title: 'Helix 05', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'},
+  {title: 'Helix 06', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3'},
+  {title: 'Helix 07', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3'},
+  {title: 'Helix 08', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3'}
+];
+const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+const a = new Audio(); a.preload = 'auto'; a.volume = .7;
+const bad = new Set(); let queue = [], hasTrack = false;
+const shuffle = l => l.map(x => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map(p => p[1]);
+function probe(t){
+  return new Promise(res => {
+    const end = ok => { a.removeEventListener('loadedmetadata', L); a.removeEventListener('error', E); clearTimeout(to); res(ok); };
+    const L = () => end(true), E = () => end(false), to = setTimeout(() => end(false), 5000);
+    a.addEventListener('loadedmetadata', L); a.addEventListener('error', E); a.src = t.url; a.load();
+  });
+}
+async function loadNext(){
+  if (!queue.length) queue = shuffle(RELIABLE_TRACKS.filter(t => !bad.has(t.url)));
+  while (queue.length){
+    const t = queue.shift();
+    if (await probe(t)){ hasTrack = true; $('#title').textContent = t.title; return true; }
+    bad.add(t.url);
+  }
+  return false;
+}
+function uiPlaying(p){
+  $('#player').classList.toggle('playing', p);
+  $('#ppi').innerHTML = p ? '<path d="M8 5v14M16 5v14"/>' : '<path d="M7 5l12 7-12 7z"/>';
+}
+a.onplay = () => uiPlaying(true); a.onpause = () => uiPlaying(false);
+a.onended = async () => { if (await loadNext()) a.play(); };
+const playNow = () => a.play().catch(() => toast('Tap play to start the music'));
+setInterval(() => {
+  const d = a.duration, c = a.currentTime;
+  if (d && isFinite(d)){ $('#tcur').textContent = fmt(c); $('#tdur').textContent = fmt(d); $('#tfill').style.width = (c / d * 100) + '%'; }
+}, 400);
+$('#pp').onclick = () => { sfx.click(); if (!hasTrack) return toast('No music could load'); a.paused ? playNow() : a.pause(); };
+$('#nx').onclick = async () => { sfx.click(); if (await loadNext()) playNow(); else toast('No other track available'); };
+$('#mm').onclick = e => { const b = e.currentTarget, on = b.getAttribute('aria-pressed') === 'true'; b.setAttribute('aria-pressed', !on); sfx.click(); a.muted = on; };
+$('#sfxb').onclick = e => { const b = e.currentTarget; const was = sfxOn; if (!was){ sfxOn = true; sfx.click(); } sfxOn = !was; b.setAttribute('aria-pressed', sfxOn); toast(sfxOn ? 'Sound effects on' : 'Sound effects off'); };
+$('#track').onclick = e => { if (!hasTrack || !isFinite(a.duration)) return; const r = e.currentTarget.getBoundingClientRect(); sfx.tick(); a.currentTime = a.duration * (e.clientX - r.left) / r.width; };
+
+/* ---------- loading gate ---------- */
+(async function boot(){
+  const bar = $('#gbar'), stat = $('#gstat'); let shown = 0, target = 0, done = false;
+  (function tick(){ shown += (target - shown) * .08; bar.style.width = shown + '%';
+    stat.dataset.p = Math.round(shown); if (!done || shown < 99.5) requestAnimationFrame(tick); else bar.style.width = '100%'; })();
+  const step = async (label, pct, fn, min = 450) => { stat.textContent = label; await Promise.all([fn(), sleep(min)]); target = pct; };
+  await step('Warming up the interface', 25, () => document.fonts?.ready || 0);
+  let musicOk = false;
+  await step('Picking a track', 90, async () => { musicOk = await loadNext(); }, 300);
+  await step('Almost there', 100, () => sleep(250), 200);
+  await sleep(500); done = true; stat.textContent = musicOk ? 'Ready' : 'Ready (music unavailable)';
+  $('#enter').classList.add('ready');
+  $('#enter').onclick = async () => {
+    getAC(); await ac.resume(); sfx.enter();
+    if (musicOk) playNow();
+    $('#gate').classList.add('leave'); document.body.classList.add('in'); movePill();
+    if (location.hash === '#sandbox') setTimeout(() => show('sandbox'), 900);
+    setTimeout(() => $('#gate').remove(), 900);
+  };
+  movePill();
+})();
+</script>
+</body>
+</html>
